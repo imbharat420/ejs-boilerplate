@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" action="/user" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="text" name="name">
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        (()=>{
+               let $ = document.querySelector.bind(document)
+                let $$ = document.querySelectorAll.bind(document)
+                let form = $("form")
+                let inputs = $$("input")
+
+                let errors = []
+                //validations here
+                let validations = {
+                        name:{
+                        required:true,
+                        length:{
+                            min:3,
+                            max:10
+                        },
+                        },
+                        file:{
+                            required:true,
+                            size:1000000
+                        }
+                    }
+                
+                form.addEventListener("submit",(e)=>{
+                        e.preventDefault()
+                        
+                        inputs.forEach((input)=>{
+                            let name = input.name
+                            let value = input.value
+                            let type = input.type
+                            let validation = validations[name]
+                            
+                            if(validation.required){
+                                if(!value){
+                                    errors.push(`${name} is required`)
+                                }
+                            }
+                            if(validation.length){
+                                if(value.length < validation.length.min){
+                                    errors.push(`${name} must be at least ${validation.length.min} characters`)
+                                }
+                                if(value.length > validation.length.max){
+                                    errors.push(`${name} must be less than ${validation.length.max} characters`)
+                                }
+                            }
+                            if(validation.size){
+                                if(input.files[0].size > validation.size){
+                                    errors.push(`${name} must be less than ${validation.size} bytes`)
+                                }
+                            }
+
+                        })
+
+                        try{
+                            let data =  fetch(form.action,{
+                                method:"POST",
+                                headers:{
+                                ...form.enctype,
+                                },
+                                body:new FormData(form),
+                            })
+                        }catch(err){
+                            errors.push(err);
+                        }
+
+                        console.log(errors)
+                    
+                })
+        })();
+     
+    </script>
+</body>
+</html>
